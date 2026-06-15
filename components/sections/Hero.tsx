@@ -1,257 +1,155 @@
 'use client'
-
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
-import { MagneticButton } from '../ui/MagneticButton'
-import { ArrowDown } from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Words that reveal one-by-one as you scroll — just like digitalists.at
+const WORDS = [
+  { text: 'I',            accent: false },
+  { text: 'craft',        accent: false },
+  { text: 'fast,',        accent: false },
+  { text: 'revenue—',     accent: true  },
+  { text: 'generating',   accent: false },
+  { text: 'WordPress',    accent: true  },
+  { text: 'experiences',  accent: false },
+  { text: 'for',          accent: false },
+  { text: 'global',       accent: false },
+  { text: 'clients.',     accent: false },
+]
+
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const headingRef = useRef<HTMLHeadingElement>(null)
-  const subRef = useRef<HTMLParagraphElement>(null)
-  const statsRef = useRef<HTMLDivElement>(null)
-  const scrollHintRef = useRef<HTMLDivElement>(null)
-  const bgLineRef = useRef<HTMLDivElement>(null)
+  const sectionRef  = useRef<HTMLElement>(null)
+  const taglineRef  = useRef<HTMLDivElement>(null)
+  const counterRef  = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const heading = headingRef.current
-    const sub = subRef.current
-    const stats = statsRef.current
-    const scrollHint = scrollHintRef.current
-    if (!heading || !sub || !stats || !scrollHint) return
+    const section  = sectionRef.current
+    const wordEls  = gsap.utils.toArray<HTMLElement>('.hero-word')
+    const tagline  = taglineRef.current
+    const counter  = counterRef.current
+    if (!section || !wordEls.length) return
 
-    // Split heading into words
-    const splitHeading = new SplitType(heading, { types: 'words' })
-    const splitSub = new SplitType(sub, { types: 'lines' })
+    // All words start invisible
+    gsap.set(wordEls, { opacity: 0, y: 44 })
+    if (tagline)  gsap.set(tagline,  { opacity: 0 })
+    if (counter)  gsap.set(counter,  { opacity: 0 })
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power4.out' } })
+    // Entrance: first word pops in on load
+    gsap.to(wordEls[0], { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay: 0.6 })
 
-      // Initial states
-      gsap.set([splitHeading.words, splitSub.lines, stats.children, scrollHint], {
-        opacity: 0, y: 80,
-      })
-      gsap.set(bgLineRef.current, { scaleX: 0 })
+    // Pin the section; reveal remaining words as you scroll
+    const pinEnd = `+=${wordEls.length * 180}`
 
-      tl
-        .to(splitHeading.words, {
-          opacity: 1, y: 0,
-          stagger: 0.06,
-          duration: 1.1,
-          delay: 0.6,
-        })
-        .to(splitSub.lines, {
-          opacity: 1, y: 0,
-          stagger: 0.08,
-          duration: 0.9,
-        }, '-=0.6')
-        .to(bgLineRef.current, {
-          scaleX: 1,
-          duration: 1.2,
-          ease: 'power3.inOut',
-        }, '-=0.8')
-        .to(Array.from(stats.children), {
-          opacity: 1, y: 0,
-          stagger: 0.1,
-          duration: 0.8,
-        }, '-=0.7')
-        .to(scrollHint, {
-          opacity: 1, y: 0,
-          duration: 0.7,
-        }, '-=0.4')
-
-      // Scroll-triggered parallax on hero
-      gsap.to(heading, {
-        y: -120,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1.2,
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        pin: true,
+        scrub: 0.9,
+        start: 'top top',
+        end: pinEnd,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onLeave: () => {
+          gsap.to([tagline, counter], { opacity: 1, duration: 0.4 })
         },
-      })
-    }, sectionRef)
+        onEnterBack: () => {
+          gsap.to([tagline, counter], { opacity: 0, duration: 0.2 })
+        },
+      },
+    })
 
-    return () => {
-      ctx.revert()
-      splitHeading.revert()
-      splitSub.revert()
-    }
+    // Reveal words 1..N over the scroll timeline
+    wordEls.slice(1).forEach((w, i) => {
+      tl.to(w, { opacity: 1, y: 0, ease: 'none', duration: 1 / (wordEls.length - 1) }, i / (wordEls.length - 1))
+    })
+
+    // Tagline + counter fade in after words done
+    tl.to([tagline, counter], { opacity: 1, duration: 0.3, ease: 'none' }, '>')
+
+    return () => ScrollTrigger.getAll().forEach(t => t.kill())
   }, [])
 
-  const scrollDown = () => {
-    document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
-    <section
-      ref={sectionRef}
-      id="hero"
-      className="relative min-h-screen flex flex-col justify-end overflow-hidden"
-      style={{ paddingBottom: 'clamp(3rem, 6vw, 6rem)' }}
-    >
-      {/* Decorative corner tag */}
-      <div className="absolute top-32 right-8 md:right-16 hidden md:block">
-        <div className="flex flex-col items-end gap-2">
-          <span className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>
-            WORDPRESS SPECIALIST
-          </span>
-          <span className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>
-            LAHORE · WORLDWIDE
-          </span>
-        </div>
+    <section ref={sectionRef} id="hero" style={{
+      minHeight: '100vh', background: 'var(--paper)',
+      display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+      position: 'relative', overflow: 'hidden',
+      padding: 'clamp(5rem,8vw,8rem) clamp(1.5rem,5vw,4rem) clamp(2rem,4vw,3.5rem)',
+    }}>
+      {/* Top‐right badge */}
+      <div style={{
+        position: 'absolute', top: 'clamp(5rem,9vw,8rem)', right: 'clamp(1.5rem,5vw,4rem)',
+        textAlign: 'right',
+      }}>
+        <p style={{ fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.12em',
+          color: 'var(--muted)', textTransform: 'uppercase', lineHeight: 1.8 }}>
+          WordPress Specialist<br/>Lahore, Pakistan
+        </p>
       </div>
 
-      {/* Main content */}
-      <div className="px-8 md:px-16 relative z-10">
-        {/* Eyebrow */}
-        <div className="mb-6 flex items-center gap-3">
-          <span className="block w-8 h-px" style={{ background: 'var(--orange)' }} />
-          <span className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>
-            PORTFOLIO 2025
+      {/* Top‐left: section label */}
+      <div style={{ position: 'absolute', top: 'clamp(5rem,9vw,8rem)', left: 'clamp(1.5rem,5vw,4rem)',
+        display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <span style={{ display: 'block', width: 28, height: 1, background: 'var(--accent)' }} />
+        <span style={{ fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.12em',
+          color: 'var(--muted)', textTransform: 'uppercase' }}>Portfolio 2025</span>
+      </div>
+
+      {/* WORD STACK — the hero */}
+      <div style={{ marginBottom: '2rem' }}>
+        {WORDS.map((w, i) => (
+          <span
+            key={i}
+            className={`hero-word${w.accent ? ' accent' : ''}`}
+          >
+            {w.text}
+          </span>
+        ))}
+      </div>
+
+      {/* Bottom row */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        {/* Tagline */}
+        <div ref={taglineRef} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ display: 'block', width: 28, height: 1, background: 'var(--accent)' }} />
+          <span className="font-display" style={{ fontSize: '0.7rem', letterSpacing: '0.18em',
+            color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 600 }}>
+            fast.clean.revenue
           </span>
         </div>
 
-        {/* Hero heading — massive editorial type */}
-        <h1
-          ref={headingRef}
-          className="font-display font-black leading-none"
-          style={{
-            fontSize: 'clamp(3.5rem, 11.5vw, 12rem)',
-            letterSpacing: '-0.04em',
-            color: 'var(--ink)',
-            maxWidth: '16ch',
-          }}
-        >
-          Crafting Fast,{' '}
-          <span style={{ color: 'var(--orange)' }}>Revenue-</span>Generating WordPress
-        </h1>
-
-        {/* Horizontal rule */}
-        <div
-          ref={bgLineRef}
-          className="my-8 md:my-10"
-          style={{
-            height: '1px',
-            background: 'var(--border)',
-            transformOrigin: 'left center',
-          }}
-        />
-
-        {/* Sub-row: descriptor + stats */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-          <p
-            ref={subRef}
-            className="font-body font-light leading-relaxed"
-            style={{
-              fontSize: 'clamp(1rem, 1.5vw, 1.2rem)',
-              color: 'var(--muted)',
-              maxWidth: '38ch',
-            }}
-          >
-            I build performant, beautifully coded WordPress and WooCommerce experiences
-            for international clients — from Dubai to London and beyond.
-          </p>
-
-          {/* Stats */}
-          <div ref={statsRef} className="flex gap-10 md:gap-16 shrink-0">
-            {[
-              { n: '50+', l: 'Projects' },
-              { n: '3+', l: 'Years' },
-              { n: '4', l: 'Countries' },
-            ].map((s) => (
-              <div key={s.l}>
-                <p
-                  className="font-display font-bold leading-none"
-                  style={{ fontSize: 'clamp(2rem, 3.5vw, 3.5rem)', color: 'var(--ink)', letterSpacing: '-0.03em' }}
-                >
-                  {s.n}
-                </p>
-                <p className="font-body text-xs tracking-widest mt-1" style={{ color: 'var(--muted)' }}>
-                  {s.l}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottom row: CTA + scroll hint */}
-        <div className="mt-12 flex items-center justify-between">
-          <div className="flex items-center gap-5">
-            <MagneticButton
-              onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 rounded-full font-display font-bold text-sm tracking-wide transition-colors duration-300"
-              style={{
-                background: 'var(--ink)',
-                color: 'var(--paper)',
-                fontSize: '0.8rem',
-                letterSpacing: '0.08em',
-              } as React.CSSProperties}
-            >
-              START A PROJECT
-            </MagneticButton>
-
-            <MagneticButton
-              onClick={() => document.querySelector('#work')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 rounded-full font-display font-bold text-sm tracking-wide transition-colors duration-300"
-              style={{
-                border: '1px solid var(--border)',
-                color: 'var(--ink)',
-                fontSize: '0.8rem',
-                letterSpacing: '0.08em',
-              } as React.CSSProperties}
-            >
-              VIEW WORK
-            </MagneticButton>
-          </div>
-
-          {/* Scroll indicator */}
-          <div
-            ref={scrollHintRef}
-            className="hidden md:flex flex-col items-center gap-3 cursor-pointer"
-            onClick={scrollDown}
-            data-cursor="link"
-          >
-            <div
-              className="w-px overflow-hidden"
-              style={{ height: '60px' }}
-            >
-              <div
-                className="w-px h-full"
-                style={{
-                  background: 'var(--muted)',
-                  animation: 'scrollLine 1.8s ease-in-out infinite',
-                }}
-              />
+        {/* Stats */}
+        <div ref={counterRef} style={{ display: 'flex', gap: '2.5rem' }}>
+          {[['50+','Projects'],['3+','Years'],['4','Countries']].map(([n,l]) => (
+            <div key={l} style={{ textAlign: 'right' }}>
+              <p className="font-display" style={{ fontWeight: 800,
+                fontSize: 'clamp(1.5rem,2.5vw,2.4rem)', letterSpacing: '-0.04em',
+                color: 'var(--ink)', lineHeight: 1 }}>{n}</p>
+              <p style={{ fontFamily: 'Inter', fontSize: '0.62rem', letterSpacing: '0.1em',
+                color: 'var(--muted)', marginTop: '0.25rem', textTransform: 'uppercase' }}>{l}</p>
             </div>
-            <ArrowDown size={14} strokeWidth={1.5} style={{ color: 'var(--muted)' }} />
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Large background text watermark */}
-      <div
-        className="absolute right-0 bottom-16 hidden xl:block font-display font-black leading-none select-none pointer-events-none"
-        style={{
-          fontSize: '22vw',
-          color: 'transparent',
-          WebkitTextStroke: '1px var(--border)',
-          letterSpacing: '-0.06em',
-          opacity: 0.5,
-        }}
-      >
-        DEV
+      {/* Scroll hint line */}
+      <div style={{ position: 'absolute', bottom: '3rem', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ width: 1, height: 48, background: 'var(--border)', overflow: 'hidden', position: 'relative' }}>
+          <div style={{
+            position: 'absolute', inset: 0, background: 'var(--accent)',
+            animation: 'scrollHint 1.8s ease-in-out infinite',
+          }} />
+        </div>
       </div>
 
       <style>{`
-        @keyframes scrollLine {
-          0%, 100% { transform: translateY(-100%); }
-          50% { transform: translateY(100%); }
+        @keyframes scrollHint {
+          0%   { transform: translateY(-100%) }
+          50%  { transform: translateY(0) }
+          100% { transform: translateY(100%) }
         }
       `}</style>
     </section>

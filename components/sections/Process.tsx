@@ -1,211 +1,75 @@
 'use client'
-
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const steps = [
-  {
-    num: '01',
-    phase: 'Discovery',
-    title: 'Audit & Define',
-    desc: 'We start with a deep dive into your current stack, goals, and gaps. I audit your existing site (performance, code quality, UX) and map a clear scope before a single line is written.',
-    duration: '1–2 days',
-  },
-  {
-    num: '02',
-    phase: 'Strategy',
-    title: 'Plan & Architect',
-    desc: 'A technical blueprint tailored to your business — plugin architecture, database schema, caching layers, third-party integrations. No surprises down the line.',
-    duration: '1–3 days',
-  },
-  {
-    num: '03',
-    phase: 'Build',
-    title: 'Develop & Iterate',
-    desc: 'Clean, documented code shipped in milestone phases with staging previews. You see progress continuously — not just at the finish line.',
-    duration: '1–4 weeks',
-  },
-  {
-    num: '04',
-    phase: 'QA',
-    title: 'Test & Harden',
-    desc: 'Cross-browser, cross-device, load-tested, and security-hardened. Core Web Vitals benchmarked before handoff. Nothing ships with red flags.',
-    duration: '2–4 days',
-  },
-  {
-    num: '05',
-    phase: 'Launch',
-    title: 'Deploy & Support',
-    desc: 'Zero-downtime deployment with rollback plan. Post-launch monitoring, documentation, and ongoing support packages available.',
-    duration: 'Ongoing',
-  },
+const STEPS = [
+  { n:'01', phase:'Discovery', title:'Audit & Define',    dur:'1–2 days',  desc:'Deep dive into your goals, stack, and gaps. Full audit before a single line is written.' },
+  { n:'02', phase:'Strategy',  title:'Plan & Architect',  dur:'1–3 days',  desc:'Technical blueprint: plugin architecture, database schema, caching layers, integrations.' },
+  { n:'03', phase:'Build',     title:'Develop & Iterate', dur:'1–4 weeks', desc:'Clean, documented code in milestone phases with staging previews. You see progress continuously.' },
+  { n:'04', phase:'QA',        title:'Test & Harden',     dur:'2–4 days',  desc:'Cross-browser, load-tested, security-hardened, Core Web Vitals benchmarked before handoff.' },
+  { n:'05', phase:'Launch',    title:'Deploy & Support',  dur:'Ongoing',   desc:'Zero-downtime deployment with rollback plan. Post-launch monitoring and support retainers available.' },
 ]
 
 export function Process() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const headingRef = useRef<HTMLHeadingElement>(null)
-
+  const secRef = useRef<HTMLElement>(null)
   useEffect(() => {
-    const el = headingRef.current
-    if (!el) return
-    const split = new SplitType(el, { types: 'words' })
-
     const ctx = gsap.context(() => {
-      gsap.from(split.words, {
-        opacity: 0, y: 50,
-        stagger: 0.07,
-        duration: 0.9,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 82%' },
-      })
-
-      // Each step card animates in
-      gsap.from('.process-step', {
-        opacity: 0,
-        y: 50,
-        stagger: 0.12,
-        duration: 0.9,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '.process-grid',
-          start: 'top 75%',
-        },
-      })
-
-      // Progress line draws in
-      gsap.from('.process-line', {
-        scaleX: 0,
-        transformOrigin: 'left center',
-        duration: 1.4,
-        ease: 'power3.inOut',
-        scrollTrigger: {
-          trigger: '.process-grid',
-          start: 'top 80%',
-        },
-      })
-    }, sectionRef)
-
-    return () => { ctx.revert(); split.revert() }
+      gsap.from('.proc-heading', { opacity:0, y:50, duration:1, ease:'power3.out',
+        scrollTrigger:{ trigger:'.proc-heading', start:'top 82%' } })
+      gsap.from('.proc-card', { opacity:0, y:50, stagger:0.1, duration:0.9, ease:'power3.out',
+        scrollTrigger:{ trigger:'.proc-grid', start:'top 78%' } })
+    }, secRef)
+    return () => ctx.revert()
   }, [])
 
   return (
-    <section
-      ref={sectionRef}
-      id="process"
-      className="section"
-      style={{ borderTop: '1px solid var(--border)' }}
-    >
-      <div className="px-8 md:px-16">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-20">
-          <div>
-            <div className="flex items-center gap-3 mb-8">
-              <span className="block w-8 h-px" style={{ background: 'var(--orange)' }} />
-              <span className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>
-                PROCESS
-              </span>
-            </div>
-            <h2
-              ref={headingRef}
-              className="font-display font-black leading-none"
-              style={{
-                fontSize: 'clamp(2.5rem, 6vw, 6rem)',
-                letterSpacing: '-0.04em',
-                color: 'var(--ink)',
-              }}
-            >
-              How We Work
-              <span style={{ color: 'var(--orange)' }}>.</span>
-            </h2>
+    <section ref={secRef} id="process" style={{
+      borderTop:'1px solid var(--border)',
+      padding:'clamp(4rem,8vw,8rem) clamp(1.5rem,5vw,4rem)',
+    }}>
+      <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', flexWrap:'wrap', gap:'2rem', marginBottom:'clamp(3rem,6vw,5rem)' }}>
+        <div>
+          <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'1.5rem' }}>
+            <span style={{ display:'block', width:28, height:1, background:'var(--accent)' }} />
+            <span style={{ fontFamily:'Inter', fontSize:'0.65rem', letterSpacing:'0.12em', color:'var(--muted)', textTransform:'uppercase' }}>Process</span>
           </div>
-          <p
-            className="font-body font-light text-sm leading-relaxed"
-            style={{ color: 'var(--muted)', maxWidth: '32ch' }}
-          >
-            A structured, transparent process that keeps projects on time, on budget,
-            and free of last-minute surprises.
-          </p>
+          <h2 className="proc-heading font-display" style={{ fontWeight:800, letterSpacing:'-0.04em', lineHeight:0.95,
+            fontSize:'clamp(2.2rem,5.5vw,6rem)', color:'var(--ink)' }}>
+            How We Work<span style={{ color:'var(--accent)' }}>.</span>
+          </h2>
         </div>
+        <p style={{ fontFamily:'Inter', fontWeight:300, fontSize:'0.9rem', color:'var(--muted)',
+          maxWidth:'32ch', lineHeight:1.7 }}>
+          Structured. Transparent. No last-minute surprises.
+        </p>
+      </div>
 
-        {/* Progress connector line — desktop only */}
-        <div className="process-line hidden lg:block h-px mb-16" style={{ background: 'var(--border)' }} />
-
-        {/* Steps grid */}
-        <div className="process-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-px" style={{ border: '1px solid var(--border)' }}>
-          {steps.map((step, i) => (
-            <div
-              key={step.num}
-              className="process-step group p-8 relative overflow-hidden transition-colors duration-300 hover:bg-[var(--surface)]"
-              style={{ background: 'var(--card-bg)' }}
-            >
-              {/* Hover accent */}
-              <div
-                className="absolute top-0 left-0 right-0 h-px transition-transform duration-500 group-hover:scale-x-100"
-                style={{
-                  background: 'var(--orange)',
-                  transform: 'scaleX(0)',
-                  transformOrigin: 'left center',
-                }}
-              />
-
-              <span
-                className="font-display font-black block mb-6 leading-none"
-                style={{
-                  fontSize: '3rem',
-                  color: 'var(--surface)',
-                  letterSpacing: '-0.04em',
-                  WebkitTextStroke: '1px var(--border)',
-                }}
-              >
-                {step.num}
-              </span>
-
-              <div className="mb-2">
-                <span
-                  className="font-body text-xs tracking-widest"
-                  style={{ color: 'var(--orange)' }}
-                >
-                  {step.phase}
-                </span>
-              </div>
-
-              <h3
-                className="font-display font-bold mb-4 transition-colors duration-300 group-hover:text-[var(--orange)]"
-                style={{
-                  fontSize: '1.2rem',
-                  color: 'var(--ink)',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {step.title}
-              </h3>
-
-              <p
-                className="font-body font-light text-sm leading-relaxed mb-6"
-                style={{ color: 'var(--muted)' }}
-              >
-                {step.desc}
-              </p>
-
-              <div
-                className="flex items-center gap-2 pt-4"
-                style={{ borderTop: '1px solid var(--border)' }}
-              >
-                <span className="block w-4 h-px" style={{ background: 'var(--orange)' }} />
-                <span
-                  className="font-body text-xs tracking-widest"
-                  style={{ color: 'var(--muted)' }}
-                >
-                  {step.duration}
-                </span>
-              </div>
+      <div className="proc-grid" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(200px,1fr))', gap:'1px', background:'var(--border)' }}>
+        {STEPS.map(s => (
+          <div key={s.n} className="proc-card" style={{ background:'var(--surface)', padding:'2rem 1.8rem',
+            transition:'background 0.3s' }}
+            onMouseEnter={e=>(e.currentTarget.style.background='var(--card)')}
+            onMouseLeave={e=>(e.currentTarget.style.background='var(--surface)')}>
+            <div style={{ marginBottom:'1.5rem' }}>
+              <span className="font-display" style={{ fontWeight:800, fontSize:'3.5rem',
+                letterSpacing:'-0.04em', color:'var(--border)', WebkitTextStroke:'1px var(--border)' }}>{s.n}</span>
             </div>
-          ))}
-        </div>
+            <p style={{ fontFamily:'Inter', fontSize:'0.6rem', letterSpacing:'0.1em',
+              color:'var(--accent)', textTransform:'uppercase', marginBottom:'0.4rem' }}>{s.phase}</p>
+            <h3 className="font-display" style={{ fontWeight:700, fontSize:'1.1rem',
+              letterSpacing:'-0.02em', color:'var(--ink)', marginBottom:'0.75rem' }}>{s.title}</h3>
+            <p style={{ fontFamily:'Inter', fontWeight:300, fontSize:'0.8rem',
+              color:'var(--muted)', lineHeight:1.65, marginBottom:'1.2rem' }}>{s.desc}</p>
+            <div style={{ display:'flex', alignItems:'center', gap:'0.5rem',
+              paddingTop:'1rem', borderTop:'1px solid var(--border)' }}>
+              <span style={{ display:'block', width:16, height:1, background:'var(--accent)' }} />
+              <span style={{ fontFamily:'Inter', fontSize:'0.62rem', letterSpacing:'0.08em', color:'var(--muted)' }}>{s.dur}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   )

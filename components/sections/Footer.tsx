@@ -1,171 +1,160 @@
 'use client'
-
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Globe, Code, ExternalLink } from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const footerLinks = [
-  { label: 'Services', href: '#services' },
-  { label: 'About', href: '#about' },
-  { label: 'Work', href: '#work' },
-  { label: 'Process', href: '#process' },
-  { label: 'Contact', href: '#contact' },
+const COLS = [
+  {
+    heading: 'Development',
+    links: ['WordPress Performance','WooCommerce Dev','Custom Plugins','Elementor & Themes','Speed Audits'],
+  },
+  {
+    heading: 'Solutions',
+    links: ['E-Commerce Builds','Booking Systems','LMS Platforms','Government Portals','Site Rebuilds'],
+  },
+  {
+    heading: 'Quick Links',
+    links: ['About','Work','Process','Contact','GitHub'],
+  },
 ]
 
-const socials = [
-  { label: 'GitHub', href: 'https://github.com/adeeliqbalanjum', Icon: Code },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/adeeliqbalanjum', Icon: Globe },
-  { label: 'Upwork', href: 'https://upwork.com', Icon: ExternalLink },
-]
-
-// Marquee items
-const marqueeItems = [
-  'WordPress', '✦', 'WooCommerce', '✦', 'Performance', '✦',
-  'Custom Plugins', '✦', 'Elementor', '✦', 'UAE', '✦',
-  'UK', '✦', 'USA', '✦', 'Pakistan', '✦', 'Speed', '✦',
-]
+const MARQUEE = ['WordPress','✦','WooCommerce','✦','Performance','✦','Custom Plugins','✦','Elementor','✦','UAE','✦','UK','✦','USA','✦','Pakistan','✦','Speed','✦']
 
 export function Footer() {
-  const footerRef = useRef<HTMLElement>(null)
-  const bigTextRef = useRef<HTMLDivElement>(null)
+  const secRef = useRef<HTMLElement>(null)
+  const bigRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Big text reveal on scroll
-      gsap.from(bigTextRef.current, {
-        opacity: 0, y: 60,
-        duration: 1,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: bigTextRef.current, start: 'top 85%' },
-      })
-
-      gsap.from('.footer-link', {
-        opacity: 0, y: 20,
-        stagger: 0.06,
-        duration: 0.7,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: '.footer-nav', start: 'top 90%' },
-      })
-    }, footerRef)
-
+      gsap.from(bigRef.current, { opacity:0, y:80, duration:1.1, ease:'power3.out',
+        scrollTrigger:{ trigger:bigRef.current, start:'top 88%' } })
+      gsap.from('.ft-col', { opacity:0, y:30, stagger:0.08, duration:0.8, ease:'power3.out',
+        scrollTrigger:{ trigger:'.ft-cols', start:'top 88%' } })
+    }, secRef)
     return () => ctx.revert()
   }, [])
 
-  const scrollToSection = (href: string) => {
-    const el = document.querySelector(href)
-    el?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   return (
-    <footer ref={footerRef} style={{ borderTop: '1px solid var(--border)' }}>
+    <footer ref={secRef} style={{ borderTop:'1px solid var(--border)', background:'var(--paper)' }}>
+
       {/* Marquee band */}
-      <div
-        className="overflow-hidden py-5"
-        style={{ borderBottom: '1px solid var(--border)' }}
-      >
-        <div className="marquee-track">
-          {[...marqueeItems, ...marqueeItems].map((item, i) => (
-            <span
-              key={i}
-              className="font-body text-xs tracking-widest px-4"
-              style={{ color: 'var(--muted)' }}
-            >
-              {item}
-            </span>
+      <div style={{ overflow:'hidden', borderBottom:'1px solid var(--border)', padding:'1rem 0' }}>
+        <div className="marquee-inner">
+          {[...MARQUEE,...MARQUEE].map((item,i) => (
+            <span key={i} style={{ fontFamily:'Inter', fontSize:'0.62rem', letterSpacing:'0.14em',
+              color:'var(--muted)', padding:'0 1.2rem', textTransform:'uppercase' }}>{item}</span>
           ))}
         </div>
       </div>
 
-      {/* Big name block */}
-      <div ref={bigTextRef} className="px-8 md:px-16 py-16 md:py-20" style={{ borderBottom: '1px solid var(--border)' }}>
-        <p className="font-body text-xs tracking-widest mb-4" style={{ color: 'var(--muted)' }}>
-          LAHORE, PAKISTAN · WORKING WORLDWIDE
+      {/* Giant name */}
+      <div ref={bigRef} style={{
+        padding:'clamp(3rem,6vw,6rem) clamp(1.5rem,5vw,4rem)',
+        borderBottom:'1px solid var(--border)',
+      }}>
+        <p style={{ fontFamily:'Inter', fontSize:'0.62rem', letterSpacing:'0.12em',
+          color:'var(--muted)', textTransform:'uppercase', marginBottom:'1rem' }}>
+          Lahore, Pakistan · Working Worldwide
         </p>
-        <div
-          className="font-display font-black leading-none select-none"
-          style={{
-            fontSize: 'clamp(3.5rem, 11vw, 12rem)',
-            letterSpacing: '-0.04em',
-            color: 'var(--ink)',
-          }}
-        >
-          ADEEL<span style={{ color: 'var(--orange)' }}>.</span>
+        <div className="font-display" style={{
+          fontWeight:800, letterSpacing:'-0.04em', lineHeight:0.88,
+          fontSize:'clamp(3.5rem,12vw,13rem)', color:'var(--ink)',
+          userSelect:'none',
+        }}>
+          ADEEL<span style={{ color:'var(--accent)' }}>.</span>
         </div>
-        <div
-          className="font-display font-black leading-none select-none mt-2"
-          style={{
-            fontSize: 'clamp(1.5rem, 5vw, 5.5rem)',
-            letterSpacing: '-0.04em',
-            color: 'var(--muted)',
-          }}
-        >
+        <div className="font-display" style={{
+          fontWeight:800, letterSpacing:'-0.04em', lineHeight:0.88, marginTop:'0.15em',
+          fontSize:'clamp(1.5rem,5vw,5.5rem)', color:'var(--muted)',
+          userSelect:'none',
+        }}>
           IQBAL ANJUM
         </div>
       </div>
 
-      {/* Nav + socials row */}
-      <div className="px-8 md:px-16 py-10">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
-          {/* Navigation */}
-          <nav className="footer-nav flex flex-wrap gap-x-8 gap-y-4">
-            {footerLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => scrollToSection(link.href)}
-                data-cursor="link"
-                className="footer-link font-body text-xs tracking-widest transition-colors duration-200 hover:text-[var(--orange)]"
-                style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'none', padding: 0 }}
-              >
-                {link.label}
-              </button>
-            ))}
-          </nav>
-
-          {/* Socials */}
-          <div className="flex items-center gap-4">
-            {socials.map(({ label, href, Icon }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noreferrer"
-                data-cursor="link"
-                aria-label={label}
-                className="w-10 h-10 flex items-center justify-center rounded-full transition-colors duration-200 hover:border-[var(--orange)] hover:text-[var(--orange)]"
-                style={{
-                  border: '1px solid var(--border)',
-                  color: 'var(--muted)',
-                  textDecoration: 'none',
-                }}
-              >
-                <Icon size={15} strokeWidth={1.5} />
-              </a>
-            ))}
+      {/* Link columns */}
+      <div className="ft-cols" style={{
+        display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',
+        gap:'3rem', padding:'3rem clamp(1.5rem,5vw,4rem)',
+        borderBottom:'1px solid var(--border)',
+      }}>
+        {COLS.map(col => (
+          <div key={col.heading} className="ft-col">
+            <p style={{ fontFamily:'Inter', fontSize:'0.6rem', letterSpacing:'0.12em',
+              color:'var(--muted)', textTransform:'uppercase', marginBottom:'1rem' }}>
+              {col.heading}
+            </p>
+            <ul style={{ listStyle:'none' }}>
+              {col.links.map(l => (
+                <li key={l} style={{ marginBottom:'0.55rem' }}>
+                  <a href="#" style={{ fontFamily:'Inter', fontWeight:300, fontSize:'0.82rem',
+                    color:'var(--muted)', textDecoration:'none', cursor:'none',
+                    transition:'color 0.2s' }}
+                    onMouseEnter={e=>(e.currentTarget.style.color='var(--ink)')}
+                    onMouseLeave={e=>(e.currentTarget.style.color='var(--muted)')}>
+                    {l}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        ))}
 
-        {/* Bottom bar */}
-        <div
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-10 pt-8"
-          style={{ borderTop: '1px solid var(--border)' }}
-        >
-          <p className="font-body text-xs" style={{ color: 'var(--muted)' }}>
-            © {new Date().getFullYear()} Adeel Iqbal Anjum. All rights reserved.
+        {/* Newsletter / CTA */}
+        <div className="ft-col">
+          <p style={{ fontFamily:'Inter', fontSize:'0.6rem', letterSpacing:'0.12em',
+            color:'var(--muted)', textTransform:'uppercase', marginBottom:'1rem' }}>
+            Start a Project
           </p>
-          <div className="flex items-center gap-6">
-            <span className="font-body text-xs" style={{ color: 'var(--muted)' }}>
-              WordPress Performance & WooCommerce Specialist
-            </span>
-            <span
-              className="font-body text-xs px-3 py-1 rounded-full"
-              style={{ border: '1px solid var(--border)', color: 'var(--muted)' }}
-            >
-              v1.0
-            </span>
-          </div>
+          <a href="mailto:adeeliqbalanjum@gmail.com" style={{
+            fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem',
+            color:'var(--ink)', textDecoration:'none', display:'block',
+            marginBottom:'0.5rem', cursor:'none',
+            transition:'color 0.2s',
+          }}
+          onMouseEnter={e=>(e.currentTarget.style.color='var(--accent)')}
+          onMouseLeave={e=>(e.currentTarget.style.color='var(--ink)')}>
+            adeeliqbalanjum@gmail.com
+          </a>
+          <a href="https://upwork.com" target="_blank" rel="noreferrer" style={{
+            fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:'0.82rem',
+            color:'var(--accent)', textDecoration:'none', cursor:'none',
+          }}>
+            Upwork → Hire Me
+          </a>
+        </div>
+      </div>
+
+      {/* Bottom bar — "The scroll goes on not.done.yet" */}
+      <div style={{
+        display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem',
+        padding:'1.5rem clamp(1.5rem,5vw,4rem)',
+      }}>
+        <p style={{ fontFamily:'Inter', fontSize:'0.65rem', color:'var(--muted)', letterSpacing:'0.04em' }}>
+          © {new Date().getFullYear()} Adeel Iqbal Anjum
+        </p>
+
+        {/* digitalists.at signature line */}
+        <p className="font-display" style={{
+          fontWeight:700, fontSize:'0.7rem', letterSpacing:'0.1em',
+          color:'var(--muted)', textTransform:'uppercase',
+        }}>
+          The scroll goes on&nbsp;&nbsp;
+          <span style={{ color:'var(--accent)' }}>not.done.yet</span>
+        </p>
+
+        <div style={{ display:'flex', gap:'1.5rem' }}>
+          {['Privacy','Terms','Sitemap'].map(l => (
+            <a key={l} href="#" style={{ fontFamily:'Inter', fontSize:'0.62rem',
+              color:'var(--muted)', textDecoration:'none', cursor:'none',
+              transition:'color 0.2s' }}
+              onMouseEnter={e=>(e.currentTarget.style.color='var(--ink)')}
+              onMouseLeave={e=>(e.currentTarget.style.color='var(--muted)')}>
+              {l}
+            </a>
+          ))}
         </div>
       </div>
     </footer>

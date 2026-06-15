@@ -1,197 +1,212 @@
 'use client'
-
-import { useRef, useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const services = [
+const SERVICES = [
   {
-    num: '01',
-    title: 'WordPress Performance',
-    tagline: 'Sub-2s load times',
-    desc: 'Core Web Vitals optimization, caching strategies, server-side tuning, and image pipelines that turn slow sites into revenue machines.',
-    tags: ['GTmetrix A', 'Core Web Vitals', 'WP Rocket', 'Server Config'],
-    accent: '#ff6600',
+    num: '01', title: 'WordPress Performance',
+    sub: 'Sub-2s load times. Guaranteed.',
+    desc: 'Full Core Web Vitals audit, server-side caching, image pipelines, and CDN configuration. I turn 9-second loading dinosaurs into sub-2s revenue machines.',
+    tags: ['GTmetrix A', 'WP Rocket', 'LCP / CLS / FID', 'Server Config'],
+    visual: '#ff6600',
   },
   {
-    num: '02',
-    title: 'WooCommerce Development',
-    tagline: 'E-commerce that converts',
-    desc: 'Custom checkout flows, complex product configurators, payment gateway integration, and high-volume order management built to scale.',
-    tags: ['Custom Plugins', 'Payments', 'Inventory', 'Analytics'],
-    accent: '#ff6600',
+    num: '02', title: 'WooCommerce Development',
+    sub: 'E-commerce that converts.',
+    desc: 'Custom checkout flows, tiered pricing engines, complex product configurators, and payment gateway integrations that handle thousands of orders without breaking a sweat.',
+    tags: ['Custom Checkout', 'Telr / Stripe', 'Inventory', 'B2B Portals'],
+    visual: '#e65500',
   },
   {
-    num: '03',
-    title: 'Custom Plugin Dev',
-    tagline: 'Bespoke functionality',
-    desc: 'When off-the-shelf plugins fall short, I build custom WordPress plugins — booking systems, admin dashboards, API integrations.',
-    tags: ['PHP / OOP', 'REST API', 'Admin UI', 'Hooks & Filters'],
-    accent: '#ff6600',
+    num: '03', title: 'Custom Plugin Development',
+    sub: "When off-the-shelf isn\u2019t enough.",
+    desc: 'Bespoke WordPress plugins: booking systems, admin dashboards, REST API bridges, multi-step forms, and complex data workflows — all with clean, documented PHP.',
+    tags: ['PHP / OOP', 'REST API', 'Custom Admin UI', 'Hooks & Filters'],
+    visual: '#cc4400',
   },
   {
-    num: '04',
-    title: 'Elementor & Theme Dev',
-    tagline: 'Pixel-perfect builds',
-    desc: 'Custom Elementor widgets, child themes, and full-site editors. Clean, maintainable code that your client can actually update.',
-    tags: ['Elementor Pro', 'ACF', 'Custom CSS', 'FSE'],
-    accent: '#ff6600',
+    num: '04', title: 'Elementor & Theme Dev',
+    sub: 'Pixel-perfect front-ends.',
+    desc: 'Custom Elementor widgets, child themes, and Full Site Editing blocks. Clean, maintainable markup that your client can actually manage without breaking things.',
+    tags: ['Elementor Pro', 'ACF', 'Custom Widgets', 'FSE / Gutenberg'],
+    visual: '#b33300',
   },
   {
-    num: '05',
-    title: 'Speed & Vitals Audit',
-    tagline: 'Diagnose & fix',
-    desc: 'A complete performance audit covering LCP, CLS, FID, server response, and everything in between — with a clear action plan.',
-    tags: ['Lighthouse', 'PageSpeed', 'CDN', 'Image Opt'],
-    accent: '#ff6600',
+    num: '05', title: 'Speed & Vitals Audit',
+    sub: 'Find every bottleneck.',
+    desc: 'A comprehensive audit covering LCP, CLS, INP, TTFB, server response time, render-blocking resources, and everything in between — with a prioritized fix plan.',
+    tags: ['Lighthouse', 'PageSpeed', 'WebPageTest', 'CDN Audit'],
+    visual: '#993300',
+  },
+  {
+    num: '06', title: 'Site Maintenance & Support',
+    sub: 'Always on. Always secure.',
+    desc: 'Monthly retainers for plugin updates, security hardening, uptime monitoring, performance checks, and priority bug fixes. Your site, always running perfectly.',
+    tags: ['Monthly Retainer', 'Security', 'Uptime', 'Backups'],
+    visual: '#7a2900',
   },
 ]
 
 export function Services() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const headingRef = useRef<HTMLHeadingElement>(null)
-  const [activeIdx, setActiveIdx] = useState<number | null>(null)
+  const [active, setActive] = useState(0)
+  const sectionRef  = useRef<HTMLElement>(null)
+  const rightRef    = useRef<HTMLDivElement>(null)
+  const panelRef    = useRef<HTMLDivElement>(null)
 
+  // Scroll-triggered activation of each service row
   useEffect(() => {
-    const heading = headingRef.current
-    if (!heading) return
-    const split = new SplitType(heading, { types: 'words' })
-
     const ctx = gsap.context(() => {
-      gsap.from(split.words, {
-        opacity: 0, y: 60,
-        stagger: 0.07,
-        duration: 0.9,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: heading, start: 'top 82%' },
+      // Heading reveal
+      gsap.from('.svc-heading', {
+        opacity: 0, y: 50, duration: 1, ease: 'power3.out',
+        scrollTrigger: { trigger: '.svc-heading', start: 'top 82%' },
       })
 
-      // Animate service rows in
-      gsap.from('.service-row', {
-        opacity: 0, y: 40,
-        stagger: 0.07,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: '.service-list', start: 'top 78%' },
+      // Each row triggers active state
+      SERVICES.forEach((_, i) => {
+        ScrollTrigger.create({
+          trigger: `.svc-row-${i}`,
+          start: 'top 55%',
+          end: 'bottom 45%',
+          onEnter:      () => setActive(i),
+          onEnterBack:  () => setActive(i),
+        })
       })
     }, sectionRef)
-
-    return () => { ctx.revert(); split.revert() }
+    return () => ctx.revert()
   }, [])
 
+  // Crossfade right panel when active changes
+  useEffect(() => {
+    if (!panelRef.current) return
+    gsap.fromTo(panelRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' }
+    )
+  }, [active])
+
+  const s = SERVICES[active]
+
   return (
-    <section ref={sectionRef} id="services" className="section" style={{ paddingLeft: 0, paddingRight: 0 }}>
-      <div className="px-8 md:px-16 mb-16">
-        <div className="flex items-center gap-3 mb-8">
-          <span className="block w-8 h-px" style={{ background: 'var(--orange)' }} />
-          <span className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>SERVICES</span>
+    <section ref={sectionRef} id="services" style={{ background: 'var(--paper)' }}>
+      {/* Section header */}
+      <div style={{
+        padding: 'clamp(4rem,8vw,8rem) clamp(1.5rem,5vw,4rem) 3rem',
+        borderTop: '1px solid var(--border)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          <span style={{ display: 'block', width: 28, height: 1, background: 'var(--accent)' }} />
+          <span style={{ fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.12em',
+            color: 'var(--muted)', textTransform: 'uppercase' }}>Leistungen</span>
         </div>
-        <h2
-          ref={headingRef}
-          className="font-display font-black leading-none"
-          style={{
-            fontSize: 'clamp(2.5rem, 6vw, 6rem)',
-            letterSpacing: '-0.04em',
-            color: 'var(--ink)',
-            maxWidth: '14ch',
-          }}
-        >
-          What I Build
-          <span style={{ color: 'var(--orange)' }}>.</span>
+        <h2 className="svc-heading font-display" style={{
+          fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 0.95,
+          fontSize: 'clamp(2.2rem,5.5vw,6rem)', color: 'var(--ink)',
+        }}>
+          What we do<br/>
+          <em style={{ fontStyle: 'normal', color: 'var(--accent)' }}>is what we love</em>
         </h2>
       </div>
 
-      {/* Service list */}
-      <div className="service-list" style={{ borderTop: '1px solid var(--border)' }}>
-        {services.map((s, i) => (
-          <div
-            key={s.num}
-            className="service-row group relative overflow-hidden"
-            style={{ borderBottom: '1px solid var(--border)', cursor: 'none' }}
-            onMouseEnter={() => setActiveIdx(i)}
-            onMouseLeave={() => setActiveIdx(null)}
-            data-cursor="link"
-          >
-            {/* Hover bg sweep */}
+      {/* Two-column layout: left = scrollable list, right = sticky panel */}
+      <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+
+        {/* LEFT: service list — each item has height so ScrollTrigger can detect it */}
+        <div style={{ flex: 1, borderTop: '1px solid var(--border)' }}>
+          {SERVICES.map((svc, i) => (
             <div
-              className="absolute inset-0 transition-transform duration-700 ease-in-out"
+              key={svc.num}
+              className={`svc-row-${i}`}
+              onClick={() => setActive(i)}
               style={{
-                background: 'var(--surface)',
-                transform: activeIdx === i ? 'scaleX(1)' : 'scaleX(0)',
-                transformOrigin: 'left center',
-                willChange: 'transform',
+                borderBottom: '1px solid var(--border)',
+                padding: 'clamp(1.5rem,3vw,2.5rem) clamp(1.5rem,5vw,4rem)',
+                cursor: 'none', minHeight: '12vh',
+                background: active === i ? 'var(--surface)' : 'transparent',
+                transition: 'background 0.3s',
               }}
-            />
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.5rem' }}>
+                <span style={{
+                  fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.1em',
+                  color: active === i ? 'var(--accent)' : 'var(--muted)',
+                  minWidth: '2rem', paddingTop: '0.4rem',
+                  transition: 'color 0.3s',
+                }}>{svc.num}</span>
 
-            <div className="relative z-10 px-8 md:px-16 py-8 md:py-10 flex flex-col md:flex-row md:items-center gap-6">
-              {/* Number */}
-              <span
-                className="font-body font-light shrink-0"
-                style={{ color: 'var(--muted)', width: '3rem', fontSize: '0.75rem', letterSpacing: '0.1em' }}
-              >
-                {s.num}
-              </span>
-
-              {/* Title */}
-              <div className="flex-1">
-                <h3
-                  className="font-display font-bold transition-colors duration-300"
-                  style={{
-                    fontSize: 'clamp(1.3rem, 2.5vw, 2.2rem)',
+                <div style={{ flex: 1 }}>
+                  <h3 className="font-display" style={{
+                    fontWeight: 800,
+                    fontSize: 'clamp(1.1rem,2.2vw,2rem)',
                     letterSpacing: '-0.025em',
-                    color: activeIdx === i ? 'var(--orange)' : 'var(--ink)',
-                  }}
-                >
-                  {s.title}
-                </h3>
-              </div>
+                    color: active === i ? 'var(--ink)' : 'var(--muted)',
+                    transition: 'color 0.3s', marginBottom: '0.3rem',
+                  }}>{svc.title}</h3>
+                  {active === i && (
+                    <p style={{ fontFamily: 'Inter', fontSize: '0.8rem',
+                      color: 'var(--muted)', letterSpacing: '0.02em' }}>{svc.sub}</p>
+                  )}
+                </div>
 
-              {/* Desc — appears on hover */}
-              <div
-                className="md:w-80 transition-all duration-500"
-                style={{
-                  opacity: activeIdx === i ? 1 : 0,
-                  transform: activeIdx === i ? 'translateX(0)' : 'translateX(16px)',
-                }}
-              >
-                <p className="font-body font-light text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
-                  {s.desc}
-                </p>
+                {/* Arrow */}
+                <span style={{
+                  color: 'var(--accent)', fontSize: '1.1rem',
+                  opacity: active === i ? 1 : 0, transition: 'opacity 0.3s',
+                }}>↗</span>
               </div>
+            </div>
+          ))}
+        </div>
 
-              {/* Tags */}
-              <div className="hidden lg:flex gap-2 shrink-0 flex-wrap justify-end" style={{ maxWidth: '220px' }}>
-                {s.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="font-body text-xs px-3 py-1 rounded-full"
-                    style={{
-                      border: '1px solid var(--border)',
-                      color: 'var(--muted)',
-                    }}
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
+        {/* RIGHT: sticky detail panel */}
+        <div ref={rightRef} className="hidden lg:flex" style={{
+          width: '42%', position: 'sticky', top: 0,
+          height: '100vh', flexDirection: 'column', justifyContent: 'center',
+          padding: '3rem 4rem 3rem 3rem',
+          borderLeft: '1px solid var(--border)',
+        }}>
+          <div ref={panelRef}>
+            {/* Visual swatch */}
+            <div style={{
+              width: '100%', aspectRatio: '16/9', borderRadius: '1rem',
+              background: s.visual,
+              marginBottom: '2rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              {/* Abstract decoration */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.08) 0%, transparent 60%)',
+              }} />
+              <span className="font-display" style={{
+                fontWeight: 800, fontSize: '5rem', color: 'rgba(255,255,255,0.1)',
+                letterSpacing: '-0.05em',
+              }}>{s.num}</span>
+            </div>
 
-              {/* Arrow */}
-              <span
-                className="font-display shrink-0 text-xl transition-all duration-300"
-                style={{
-                  color: 'var(--orange)',
-                  opacity: activeIdx === i ? 1 : 0,
-                  transform: activeIdx === i ? 'translateX(0) rotate(0deg)' : 'translateX(-8px) rotate(-45deg)',
-                }}
-              >
-                ↗
-              </span>
+            <p style={{ fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.12em',
+              color: 'var(--accent)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+              {s.sub}
+            </p>
+            <p style={{ fontFamily: 'Inter', fontWeight: 300, fontSize: '0.95rem',
+              lineHeight: 1.7, color: 'var(--muted)', marginBottom: '1.5rem' }}>
+              {s.desc}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {s.tags.map(t => (
+                <span key={t} style={{
+                  fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.08em',
+                  padding: '0.35rem 0.85rem', borderRadius: '9999px',
+                  border: '1px solid var(--border)', color: 'var(--muted)',
+                }}>{t}</span>
+              ))}
             </div>
           </div>
-        ))}
+        </div>
       </div>
     </section>
   )

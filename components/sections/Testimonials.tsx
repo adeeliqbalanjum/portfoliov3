@@ -1,239 +1,108 @@
 'use client'
-
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import SplitType from 'split-type'
-import { ChevronLeft, ChevronRight, Star } from 'lucide-react'
-import { MagneticButton } from '../ui/MagneticButton'
+import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const testimonials = [
-  {
-    quote: 'Adeel completely transformed our WooCommerce store. Load times dropped from 9 seconds to under 2, and our conversion rate jumped by 34% in the first month. Best investment we made.',
-    author: 'Ahmed Al-Rashidi',
-    role: 'Managing Director',
-    company: 'EESNCO Lighting, Dubai',
-    rating: 5,
-  },
-  {
-    quote: 'The custom booking plugin Adeel built for our desert safari operation handles hundreds of bookings daily without a single issue. The admin approval workflow saved us hours every week.',
-    author: 'Khalid Hassan',
-    role: 'Operations Manager',
-    company: 'Desert Safari Dubai, UAE',
-    rating: 5,
-  },
-  {
-    quote: 'Working across time zones, Adeel was always responsive and delivered ahead of schedule. The embassy portal looks professional, loads fast, and was built to strict security standards.',
-    author: 'Tariq Mehmood',
-    role: 'First Secretary',
-    company: 'Embassy of Pakistan, Muscat',
-    rating: 5,
-  },
-  {
-    quote: 'Our LMS handles over 5,000 students and course enrollment has tripled since Adeel rebuilt the platform. Performance, design, and functionality — all exceeded expectations.',
-    author: 'Sara Malik',
-    role: 'CEO',
-    company: 'Rozi Academy, Pakistan',
-    rating: 5,
-  },
-]
-
-const trustMarkers = [
-  { label: '50+', sub: 'Projects Delivered' },
-  { label: '100%', sub: 'Client Satisfaction' },
-  { label: '4', sub: 'Countries Served' },
-  { label: '<48h', sub: 'Response Time' },
+const T = [
+  { q:'Adeel completely transformed our WooCommerce store. Load times dropped from 9 seconds to under 2, and our conversion rate jumped 34% in the first month.', a:'Ahmed Al-Rashidi', r:'Managing Director', c:'EESNCO Lighting, Dubai', rating:5 },
+  { q:'The custom booking plugin handles hundreds of desert safari bookings daily without a single issue. The admin approval workflow saved us hours every week.', a:'Khalid Hassan', r:'Operations Manager', c:'Desert Safari Dubai, UAE', rating:5 },
+  { q:'Working across time zones, Adeel was always responsive and delivered ahead of schedule. The embassy portal looks professional and was built to strict security standards.', a:'Tariq Mehmood', r:'First Secretary', c:'Embassy of Pakistan, Muscat', rating:5 },
+  { q:'Our LMS handles 5,000+ students and course enrollment tripled since Adeel rebuilt the platform. Performance, design, and functionality — all exceeded expectations.', a:'Sara Malik', r:'CEO', c:'Rozi Academy, Pakistan', rating:5 },
 ]
 
 export function Testimonials() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const headingRef = useRef<HTMLHeadingElement>(null)
-  const [active, setActive] = useState(0)
+  const [idx, setIdx] = useState(0)
+  const qRef = useRef<HTMLQuoteElement>(null)
+  const secRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const el = headingRef.current
-    if (!el) return
-    const split = new SplitType(el, { types: 'words' })
-
     const ctx = gsap.context(() => {
-      gsap.from(split.words, {
-        opacity: 0, y: 50,
-        stagger: 0.07,
-        duration: 0.9,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 82%' },
-      })
-
-      gsap.from('.trust-marker', {
-        opacity: 0, y: 30,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: 'power3.out',
-        scrollTrigger: { trigger: '.trust-row', start: 'top 85%' },
-      })
-    }, sectionRef)
-
-    return () => { ctx.revert(); split.revert() }
+      gsap.from('.tst-heading', { opacity:0, y:50, duration:1, ease:'power3.out',
+        scrollTrigger:{ trigger:'.tst-heading', start:'top 82%' } })
+      gsap.from('.tst-card', { opacity:0, y:60, duration:1, ease:'power3.out',
+        scrollTrigger:{ trigger:'.tst-card', start:'top 80%' } })
+    }, secRef)
+    return () => ctx.revert()
   }, [])
 
-  // Animate quote change
   useEffect(() => {
-    gsap.fromTo('.testimonial-quote',
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
-    )
-  }, [active])
+    if (!qRef.current) return
+    gsap.fromTo(qRef.current, { opacity:0, y:16 }, { opacity:1, y:0, duration:0.45, ease:'power2.out' })
+  }, [idx])
 
-  const prev = () => setActive(i => (i - 1 + testimonials.length) % testimonials.length)
-  const next = () => setActive(i => (i + 1) % testimonials.length)
-
-  const t = testimonials[active]
+  const prev = () => setIdx(i => (i - 1 + T.length) % T.length)
+  const next = () => setIdx(i => (i + 1) % T.length)
+  const t = T[idx]
 
   return (
-    <section
-      ref={sectionRef}
-      id="testimonials"
-      className="section"
-      style={{ borderTop: '1px solid var(--border)', background: 'var(--surface)' }}
-    >
-      <div className="px-8 md:px-16">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-16">
-          <span className="block w-8 h-px" style={{ background: 'var(--orange)' }} />
-          <span className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>
-            CLIENT WORDS
-          </span>
-        </div>
+    <section ref={secRef} style={{
+      borderTop:'1px solid var(--border)', background:'var(--surface)',
+      padding:'clamp(4rem,8vw,8rem) clamp(1.5rem,5vw,4rem)',
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'3rem' }}>
+        <span style={{ display:'block', width:28, height:1, background:'var(--accent)' }} />
+        <span style={{ fontFamily:'Inter', fontSize:'0.65rem', letterSpacing:'0.12em',
+          color:'var(--muted)', textTransform:'uppercase' }}>Client Words</span>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-          {/* Left — heading */}
-          <div>
-            <h2
-              ref={headingRef}
-              className="font-display font-black leading-tight"
-              style={{
-                fontSize: 'clamp(2.5rem, 5vw, 5.5rem)',
-                letterSpacing: '-0.04em',
-                color: 'var(--ink)',
-              }}
-            >
-              Trusted by teams across four continents
-              <span style={{ color: 'var(--orange)' }}>.</span>
-            </h2>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'3rem' }}>
+        <h2 className="tst-heading font-display" style={{ fontWeight:800, letterSpacing:'-0.04em',
+          lineHeight:0.95, fontSize:'clamp(2rem,4.5vw,5rem)', color:'var(--ink)', maxWidth:'18ch' }}>
+          Trusted by teams across four continents<span style={{ color:'var(--accent)' }}>.</span>
+        </h2>
 
-            {/* Trust markers */}
-            <div className="trust-row grid grid-cols-2 gap-6 mt-14">
-              {trustMarkers.map((m) => (
-                <div
-                  key={m.label}
-                  className="trust-marker p-6 rounded-xl"
-                  style={{ background: 'var(--card-bg)', border: '1px solid var(--border)' }}
-                >
-                  <p
-                    className="font-display font-black leading-none mb-2"
-                    style={{
-                      fontSize: 'clamp(1.8rem, 3vw, 3rem)',
-                      color: 'var(--ink)',
-                      letterSpacing: '-0.04em',
-                    }}
-                  >
-                    {m.label}
-                  </p>
-                  <p className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>
-                    {m.sub}
-                  </p>
-                </div>
+        <div className="tst-card" style={{
+          background:'var(--card)', borderRadius:'1.25rem',
+          padding:'clamp(2rem,4vw,3.5rem)', border:'1px solid var(--border)',
+        }}>
+          <div style={{ display:'flex', gap:'4px', marginBottom:'2rem' }}>
+            {Array.from({ length:t.rating }).map((_,i) => (
+              <Star key={i} size={14} fill="var(--accent)" style={{ color:'var(--accent)' }} />
+            ))}
+          </div>
+
+          <blockquote ref={qRef} className="font-display" style={{
+            fontWeight:700, fontSize:'clamp(1.1rem,2vw,1.6rem)',
+            letterSpacing:'-0.025em', color:'var(--ink)', lineHeight:1.35, marginBottom:'2rem',
+          }}>
+            &ldquo;{t.q}&rdquo;
+          </blockquote>
+
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:'1rem' }}>
+            <div>
+              <p className="font-display" style={{ fontWeight:700, fontSize:'0.95rem', color:'var(--ink)' }}>{t.a}</p>
+              <p style={{ fontFamily:'Inter', fontSize:'0.7rem', color:'var(--muted)', marginTop:'0.2rem', letterSpacing:'0.04em' }}>
+                {t.r} · {t.c}
+              </p>
+            </div>
+            <div style={{ display:'flex', gap:'0.6rem' }}>
+              {[prev, next].map((fn, i) => (
+                <button key={i} onClick={fn} style={{
+                  width:40, height:40, borderRadius:'50%', cursor:'none',
+                  border:'1px solid var(--border)',
+                  background: i===1 ? 'var(--accent)' : 'transparent',
+                  color: i===1 ? '#fff' : 'var(--muted)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}>
+                  {i===0 ? <ChevronLeft size={15}/> : <ChevronRight size={15}/>}
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Right — testimonial carousel */}
-          <div>
-            <div
-              className="p-8 md:p-12 rounded-2xl"
-              style={{ background: 'var(--card-bg)', border: '1px solid var(--border)' }}
-            >
-              {/* Stars */}
-              <div className="flex gap-1 mb-8">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} size={16} fill="var(--orange)" style={{ color: 'var(--orange)' }} />
-                ))}
-              </div>
-
-              {/* Quote */}
-              <blockquote
-                className="testimonial-quote font-display font-bold leading-snug mb-10"
-                style={{
-                  fontSize: 'clamp(1.1rem, 2vw, 1.6rem)',
-                  color: 'var(--ink)',
-                  letterSpacing: '-0.025em',
-                }}
-              >
-                &ldquo;{t.quote}&rdquo;
-              </blockquote>
-
-              <div className="flex items-center justify-between">
-                {/* Author */}
-                <div>
-                  <p
-                    className="font-display font-bold"
-                    style={{ color: 'var(--ink)', fontSize: '0.95rem' }}
-                  >
-                    {t.author}
-                  </p>
-                  <p className="font-body text-xs mt-1 tracking-wide" style={{ color: 'var(--muted)' }}>
-                    {t.role} · {t.company}
-                  </p>
-                </div>
-
-                {/* Controls */}
-                <div className="flex items-center gap-3">
-                  <MagneticButton
-                    onClick={prev}
-                    className="w-11 h-11 flex items-center justify-center rounded-full transition-colors duration-200"
-                    style={{
-                      border: '1px solid var(--border)',
-                      color: 'var(--ink)',
-                      background: 'transparent',
-                    } as React.CSSProperties}
-                  >
-                    <ChevronLeft size={16} />
-                  </MagneticButton>
-                  <MagneticButton
-                    onClick={next}
-                    className="w-11 h-11 flex items-center justify-center rounded-full transition-colors duration-200 hover:bg-[var(--orange)]"
-                    style={{
-                      background: 'var(--orange)',
-                      color: '#fff',
-                      border: 'none',
-                    } as React.CSSProperties}
-                  >
-                    <ChevronRight size={16} />
-                  </MagneticButton>
-                </div>
-              </div>
-            </div>
-
-            {/* Pagination dots */}
-            <div className="flex gap-2 mt-6 justify-center">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActive(i)}
-                  data-cursor="btn"
-                  className="rounded-full transition-all duration-300"
-                  style={{
-                    width: i === active ? '24px' : '8px',
-                    height: '8px',
-                    background: i === active ? 'var(--orange)' : 'var(--border)',
-                    border: 'none',
-                    cursor: 'none',
-                  }}
-                />
-              ))}
-            </div>
+          {/* Dots */}
+          <div style={{ display:'flex', gap:'6px', marginTop:'1.5rem' }}>
+            {T.map((_,i) => (
+              <button key={i} onClick={() => setIdx(i)} style={{
+                height:6, width: i===idx ? 22 : 6,
+                borderRadius:9999, border:'none', cursor:'none',
+                background: i===idx ? 'var(--accent)' : 'var(--border)',
+                transition:'width 0.3s, background 0.3s',
+              }} />
+            ))}
           </div>
         </div>
       </div>

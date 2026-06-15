@@ -1,184 +1,127 @@
 'use client'
-
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
-import Link from 'next/link'
-import { MagneticButton } from '../ui/MagneticButton'
 
-interface MenuOverlayProps {
-  isOpen: boolean
-  onClose: () => void
-}
+interface Props { isOpen: boolean; onClose: () => void }
 
-const navLinks = [
-  { label: 'Services', href: '#services', num: '01' },
-  { label: 'About', href: '#about', num: '02' },
-  { label: 'Work', href: '#work', num: '03' },
-  { label: 'Process', href: '#process', num: '04' },
-  { label: 'Contact', href: '#contact', num: '05' },
+const links = [
+  { num: '01', label: 'Services',  href: '#services'  },
+  { num: '02', label: 'Work',      href: '#work'      },
+  { num: '03', label: 'About',     href: '#about'     },
+  { num: '04', label: 'Process',   href: '#process'   },
+  { num: '05', label: 'Contact',   href: '#contact'   },
 ]
 
-const socials = [
-  { label: 'Upwork', href: 'https://upwork.com' },
-  { label: 'Fiverr', href: 'https://fiverr.com' },
-  { label: 'LinkedIn', href: 'https://linkedin.com' },
-  { label: 'GitHub', href: 'https://github.com/adeeliqbalanjum' },
-]
-
-export function MenuOverlay({ isOpen, onClose }: MenuOverlayProps) {
-  const overlayRef = useRef<HTMLDivElement>(null)
-  const linksRef = useRef<HTMLDivElement>(null)
-  const tlRef = useRef<gsap.core.Timeline | null>(null)
+export function MenuOverlay({ isOpen, onClose }: Props) {
+  const ref  = useRef<HTMLDivElement>(null)
+  const tl   = useRef<gsap.core.Timeline | null>(null)
 
   useEffect(() => {
-    const overlay = overlayRef.current
-    const linksContainer = linksRef.current
-    if (!overlay || !linksContainer) return
-
-    const links = linksContainer.querySelectorAll('.menu-link-wrapper')
-    const meta = overlay.querySelectorAll('.menu-meta')
+    const el = ref.current; if (!el) return
+    const items = el.querySelectorAll('.mo-link')
+    const meta  = el.querySelectorAll('.mo-meta')
 
     if (isOpen) {
       document.body.style.overflow = 'hidden'
-      tlRef.current = gsap.timeline()
-        .set(overlay, { display: 'flex' })
-        .fromTo(overlay, { clipPath: 'inset(0 0 100% 0)' }, {
-          clipPath: 'inset(0 0 0% 0)',
-          duration: 0.7,
-          ease: 'power4.inOut',
-        })
-        .fromTo(links, { y: 80, opacity: 0 }, {
-          y: 0, opacity: 1,
-          stagger: 0.08,
-          duration: 0.65,
-          ease: 'power3.out',
-        }, '-=0.3')
-        .fromTo(meta, { opacity: 0, y: 20 }, {
-          opacity: 1, y: 0,
-          stagger: 0.06,
-          duration: 0.5,
-          ease: 'power2.out',
-        }, '-=0.4')
+      tl.current = gsap.timeline()
+        .set(el, { display: 'flex' })
+        .fromTo(el,    { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.65, ease: 'power4.inOut' })
+        .fromTo(items, { y: 70, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.07, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+        .fromTo(meta,  { y: 20, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.05, duration: 0.5, ease: 'power2.out' }, '-=0.4')
     } else {
       document.body.style.overflow = ''
-      tlRef.current = gsap.timeline({
-        onComplete: () => gsap.set(overlay, { display: 'none' }),
-      })
-        .to(links, {
-          y: -40, opacity: 0,
-          stagger: 0.04,
-          duration: 0.35,
-          ease: 'power3.in',
-        })
-        .to(overlay, {
-          clipPath: 'inset(0 0 100% 0)',
-          duration: 0.55,
-          ease: 'power4.inOut',
-        }, '-=0.1')
+      tl.current = gsap.timeline({ onComplete: () => gsap.set(el, { display: 'none' }) })
+        .to(items, { y: -30, opacity: 0, stagger: 0.03, duration: 0.3, ease: 'power3.in' })
+        .to(el,    { clipPath: 'inset(0 0 100% 0)', duration: 0.5, ease: 'power4.inOut' }, '-=0.05')
     }
-
-    return () => { tlRef.current?.kill() }
+    return () => { tl.current?.kill() }
   }, [isOpen])
 
-  const handleLinkClick = (href: string) => {
+  const go = (href: string) => {
     onClose()
-    setTimeout(() => {
-      const el = document.querySelector(href)
-      el?.scrollIntoView({ behavior: 'smooth' })
-    }, 700)
+    setTimeout(() => document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' }), 650)
   }
 
   return (
-    <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 hidden flex-col justify-between"
-      style={{ background: 'var(--paper)', clipPath: 'inset(0 0 100% 0)' }}
-    >
+    <div ref={ref} style={{
+      display: 'none', position: 'fixed', inset: 0, zIndex: 50,
+      background: 'var(--paper)', flexDirection: 'column',
+      clipPath: 'inset(0 0 100% 0)',
+    }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-8 md:px-16 pt-8">
-        <span className="font-display font-bold text-xl tracking-tight" style={{ color: 'var(--ink)' }}>
-          ADEEL<span style={{ color: 'var(--orange)' }}>.</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: 'clamp(1.2rem,2.5vw,1.8rem) clamp(1.5rem,5vw,4rem)' }}>
+        <span className="font-display" style={{ fontWeight: 800, fontSize: '1.2rem',
+          letterSpacing: '-0.03em', color: 'var(--ink)' }}>
+          ADEEL<span style={{ color: 'var(--accent)' }}>.</span>
         </span>
-        <MagneticButton
-          onClick={onClose}
-          className="w-12 h-12 flex items-center justify-center rounded-full"
-          style={{ border: '1px solid var(--border)', color: 'var(--ink)' } as React.CSSProperties}
-        >
-          <span className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>ESC</span>
-        </MagneticButton>
+
+        {/* Greeting — digitalists.at style */}
+        <span style={{ fontFamily: 'Inter', fontSize: '0.7rem', letterSpacing: '0.1em',
+          color: 'var(--muted)', textTransform: 'uppercase' }}>
+          Hello World. Welcome here.
+        </span>
+
+        <button onClick={onClose} style={{
+          background: 'none', border: '1px solid var(--border)',
+          borderRadius: '9999px', padding: '0.5rem 1.1rem',
+          color: 'var(--muted)', cursor: 'none',
+          fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.1em',
+        }}>ESC</button>
       </div>
 
+      <div className="hr" style={{ margin: '0 clamp(1.5rem,5vw,4rem)' }} />
+
       {/* Nav links */}
-      <nav ref={linksRef} className="px-8 md:px-16 py-8">
-        {navLinks.map((link) => (
-          <div key={link.href} className="menu-link-wrapper overflow-hidden border-b" style={{ borderColor: 'var(--border)' }}>
-            <button
-              onClick={() => handleLinkClick(link.href)}
-              data-cursor="link"
-              className="group flex items-center justify-between w-full py-6 md:py-8 text-left"
-              style={{ background: 'transparent', border: 'none', cursor: 'none' }}
-            >
-              <div className="flex items-end gap-6">
-                <span
-                  className="font-body text-xs tracking-widest transition-colors duration-300"
-                  style={{ color: 'var(--muted)' }}
-                >
-                  {link.num}
-                </span>
-                <span
-                  className="font-display font-bold leading-none transition-colors duration-300 group-hover:text-orange-500"
-                  style={{
-                    fontSize: 'clamp(2.5rem, 7vw, 6rem)',
-                    color: 'var(--ink)',
-                    letterSpacing: '-0.03em',
-                  }}
-                >
-                  {link.label}
-                </span>
+      <nav style={{ flex: 1, padding: 'clamp(1.5rem,5vw,4rem)' }}>
+        {links.map(l => (
+          <div key={l.href} className="mo-link" style={{ borderBottom: '1px solid var(--border)' }}>
+            <button onClick={() => go(l.href)} style={{
+              width: '100%', display: 'flex', alignItems: 'center',
+              justifyContent: 'space-between', padding: '1.4rem 0',
+              background: 'none', border: 'none', cursor: 'none', textAlign: 'left',
+            }}
+            onMouseEnter={e => { const t = e.currentTarget.querySelector('.mo-title') as HTMLElement; if(t) t.style.color = 'var(--accent)' }}
+            onMouseLeave={e => { const t = e.currentTarget.querySelector('.mo-title') as HTMLElement; if(t) t.style.color = 'var(--ink)' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '1.5rem' }}>
+                <span style={{ fontFamily: 'Inter', fontSize: '0.65rem',
+                  letterSpacing: '0.1em', color: 'var(--muted)' }}>{l.num}</span>
+                <span className="mo-title font-display" style={{
+                  fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--ink)',
+                  fontSize: 'clamp(2rem,6vw,5.5rem)',
+                  transition: 'color 0.2s',
+                }}>{l.label}</span>
               </div>
-              <span
-                className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-body text-xs tracking-widest"
-                style={{ color: 'var(--orange)' }}
-              >
-                ↗
-              </span>
+              <span style={{ color: 'var(--accent)', fontSize: '1.5rem', opacity: 0.6 }}>↗</span>
             </button>
           </div>
         ))}
       </nav>
 
-      {/* Bottom meta */}
-      <div className="px-8 md:px-16 pb-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div className="menu-meta">
-          <p className="font-body text-xs tracking-widest mb-3" style={{ color: 'var(--muted)' }}>CONNECT</p>
-          <div className="flex gap-6">
-            {socials.map((s) => (
-              <a
-                key={s.href}
-                href={s.href}
-                target="_blank"
-                rel="noreferrer"
-                data-cursor="link"
-                className="font-body text-sm transition-colors duration-300 hover:text-orange-500"
-                style={{ color: 'var(--muted)', textDecoration: 'none' }}
-              >
-                {s.label}
-              </a>
+      {/* Footer meta */}
+      <div style={{ padding: 'clamp(1.5rem,3vw,2.5rem) clamp(1.5rem,5vw,4rem)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+        flexWrap: 'wrap', gap: '1.5rem' }}>
+        <div className="mo-meta">
+          <p style={{ fontFamily: 'Inter', fontSize: '0.65rem', letterSpacing: '0.1em',
+            color: 'var(--muted)', textTransform: 'uppercase', marginBottom: '0.4rem' }}>Connect</p>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            {['Upwork','Fiverr','LinkedIn','GitHub'].map(s => (
+              <span key={s} style={{ fontFamily: 'Inter', fontSize: '0.8rem',
+                color: 'var(--muted)', cursor: 'none' }}>{s}</span>
             ))}
           </div>
         </div>
-        <div className="menu-meta text-right">
-          <p className="font-body text-xs tracking-widest" style={{ color: 'var(--muted)' }}>
+        <div className="mo-meta" style={{ textAlign: 'right' }}>
+          <a href="mailto:adeeliqbalanjum@gmail.com" style={{
+            fontFamily: 'Syne,sans-serif', fontWeight: 700,
+            fontSize: 'clamp(0.85rem,1.5vw,1.15rem)',
+            color: 'var(--ink)', textDecoration: 'none',
+          }}>adeeliqbalanjum@gmail.com</a>
+          <p style={{ fontFamily: 'Inter', fontSize: '0.65rem',
+            color: 'var(--muted)', marginTop: '0.3rem', letterSpacing: '0.08em' }}>
             Lahore, Pakistan · Available Worldwide
           </p>
-          <a
-            href="mailto:adeeliqbalanjum@gmail.com"
-            data-cursor="link"
-            className="font-display font-bold text-lg md:text-2xl"
-            style={{ color: 'var(--ink)', textDecoration: 'none', letterSpacing: '-0.02em' }}
-          >
-            adeeliqbalanjum@gmail.com
-          </a>
         </div>
       </div>
     </div>

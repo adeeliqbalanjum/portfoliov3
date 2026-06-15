@@ -7,16 +7,8 @@ import { CustomCursor } from '@/components/ui/CustomCursor'
 
 export const metadata: Metadata = {
   title: 'Adeel Iqbal Anjum — WordPress Performance & WooCommerce Specialist',
-  description:
-    'Senior WordPress developer specialising in performance optimisation, WooCommerce, and custom plugin development. Based in Lahore, serving clients in UAE, UK, USA.',
-  keywords: [
-    'WordPress developer',
-    'WooCommerce specialist',
-    'WordPress performance',
-    'custom plugin development',
-    'Lahore developer',
-    'Dubai WordPress',
-  ],
+  description: 'Senior WordPress developer specialising in performance, WooCommerce, and custom plugins. 50+ projects across UAE, UK, USA, and Pakistan.',
+  keywords: ['WordPress developer','WooCommerce specialist','WordPress performance','custom plugin','Lahore developer','Dubai WordPress'],
   openGraph: {
     title: 'Adeel Iqbal Anjum — WordPress Specialist',
     description: 'Crafting fast, revenue-generating WordPress experiences for international clients.',
@@ -34,12 +26,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>
           <SmoothScrollProvider>
-            {/* Noise texture overlay */}
             <div className="noise-layer" aria-hidden="true" />
-            {/* Custom cursor — desktop only */}
-            <div className="hidden md:block">
-              <CustomCursor />
-            </div>
+            <div className="hidden md:block"><CustomCursor /></div>
             <Navbar />
             <main>{children}</main>
           </SmoothScrollProvider>
