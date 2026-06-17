@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./performance.css";
 
 export const metadata: Metadata = {
   title: "Muhammad Adeel Iqbal — WordPress Developer & WooCommerce Specialist",

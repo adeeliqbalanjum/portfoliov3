@@ -7,8 +7,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: isGithubActions ? '/portfoliov3' : '',
-  assetPrefix: isGithubActions ? '/portfoliov3/' : '',
+  basePath: isGithubActions ? '/portfolio-v4' : '',
+  assetPrefix: isGithubActions ? '/portfolio-v4/' : '',
 };
 
 export default nextConfig;

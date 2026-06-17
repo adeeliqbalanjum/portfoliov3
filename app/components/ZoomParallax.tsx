@@ -1,5 +1,9 @@
 "use client";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export interface ParallaxItem {
   label: string;
@@ -7,35 +11,63 @@ export interface ParallaxItem {
   gradient: string;
 }
 
-interface ZoomParallaxProps {
-  items: ParallaxItem[];
-}
+const offsets: React.CSSProperties[] = [
+  {},
+  { top: "-28vh", left: "5vw",   height: "28vh", width: "30vw" },
+  { top: "-8vh",  left: "-22vw", height: "38vh", width: "18vw" },
+  { left: "24vw",               height: "22vh", width: "22vw" },
+  { top: "24vh",  left: "5vw",  height: "22vh", width: "18vw" },
+  { top: "24vh",  left: "-20vw",height: "22vh", width: "26vw" },
+  { top: "20vh",  left: "22vw", height: "13vh", width: "13vw" },
+];
 
-export function ZoomParallax({ items }: ZoomParallaxProps) {
-  const reduceMotion = useReducedMotion();
+const endScales = [4, 5, 6, 5, 6, 8, 9];
+
+export function ZoomParallax({ items }: { items: ParallaxItem[] }) {
+  const wrapRef  = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const cards = stageRef.current?.querySelectorAll<HTMLElement>(".zp-card");
+      if (!cards?.length) return;
+      cards.forEach((card, i) => {
+        gsap.fromTo(card,
+          { scale: 1 },
+          {
+            scale: endScales[i] ?? 4,
+            ease: "none",
+            scrollTrigger: {
+              trigger: wrapRef.current,
+              start: "top top",
+              end: "bottom bottom",
+              scrub: 0.8,
+            },
+          }
+        );
+      });
+    });
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section className="zoom-showcase" aria-label="Project showcase">
-      <div className="container zoom-showcase-inner">
-        <div className="eyebrow zoom-eyebrow">50+ projects delivered</div>
-        <div className="zoom-grid">
-          {items.slice(0, 7).map(({ label, sub, gradient }, index) => (
-            <motion.article
-              className="zoom-card"
-              key={`${label}-${index}`}
-              style={{ background: gradient }}
-              initial={reduceMotion ? false : { y: 22, opacity: 0 }}
-              whileInView={reduceMotion ? undefined : { y: 0, opacity: 1 }}
-              viewport={{ once: true, amount: 0.25 }}
-              transition={{ duration: 0.45, ease: "easeOut", delay: Math.min(index * 0.045, 0.22) }}
-            >
-              <div className="zoom-card-shine" aria-hidden="true" />
-              <p>{label}</p>
-              <span>{sub}</span>
-            </motion.article>
-          ))}
+    <div className="zp-outer" ref={wrapRef} aria-hidden="true">
+      <div className="zp-stage" ref={stageRef}>
+        <div className="zp-label-wrap">
+          <p className="zp-label">50+ projects delivered</p>
         </div>
+        {items.slice(0, 7).map(({ label, sub, gradient }, i) => (
+          <div
+            className="zp-card"
+            key={label}
+            style={{ background: gradient, ...offsets[i] }}
+          >
+            <div className="zp-shine" />
+            <p className="zp-name">{label}</p>
+            <p className="zp-sub">{sub}</p>
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }

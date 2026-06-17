@@ -1,45 +1,24 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-interface TextRotateProps {
-  texts: string[];
-  interval?: number;
-}
-
-export function TextRotate({ texts, interval = 2400 }: TextRotateProps) {
+/* Pure CSS animation — zero runtime cost, no framer-motion */
+export function TextRotate({ texts, interval = 2400 }: { texts: string[]; interval?: number }) {
   const [index, setIndex] = useState(0);
-
-  const next = useCallback(() => {
-    setIndex((i) => (i + 1) % texts.length);
-  }, [texts.length]);
+  const [animKey, setAnimKey] = useState(0); /* key forces CSS re-trigger */
 
   useEffect(() => {
-    const id = setInterval(next, interval);
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % texts.length);
+      setAnimKey((k) => k + 1);
+    }, interval);
     return () => clearInterval(id);
-  }, [next, interval]);
+  }, [texts.length, interval]);
 
   return (
-    <span
-      style={{
-        display: "inline-block",
-        position: "relative",
-        overflow: "hidden",
-        verticalAlign: "bottom",
-      }}
-    >
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={index}
-          initial={{ y: "100%", opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: "-110%", opacity: 0 }}
-          transition={{ type: "spring", damping: 22, stiffness: 280, duration: 0.4 }}
-          style={{ display: "inline-block" }}
-        >
-          {texts[index]}
-        </motion.span>
-      </AnimatePresence>
+    <span className="tr-rot-wrap">
+      <span className="tr-rot-inner" key={animKey}>
+        {texts[index]}
+      </span>
     </span>
   );
 }
