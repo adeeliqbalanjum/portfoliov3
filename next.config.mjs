@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
+const repoName = 'portfoliov3';
 
 const nextConfig = {
   output: 'export',
@@ -7,8 +8,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: isGithubActions ? '/portfolio-v4' : '',
-  assetPrefix: isGithubActions ? '/portfolio-v4/' : '',
+  basePath: isGithubActions ? `/${repoName}` : '',
+  assetPrefix: isGithubActions ? `/${repoName}/` : '',
 };
 
 export default nextConfig;
