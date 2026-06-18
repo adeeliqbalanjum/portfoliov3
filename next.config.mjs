@@ -1,14 +1,14 @@
-const basePath = process.env.BASE_PATH || '';
-
 /** @type {import('next').NextConfig} */
+const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
+
 const nextConfig = {
   output: 'export',
-  images: {
-    unoptimized: true
-  },
   trailingSlash: true,
-  basePath,
-  assetPrefix: basePath ? `${basePath}/` : undefined,
+  images: {
+    unoptimized: true,
+  },
+  basePath: isGithubActions ? '/portfolio-v4' : '',
+  assetPrefix: isGithubActions ? '/portfolio-v4/' : '',
 };
 
 export default nextConfig;
