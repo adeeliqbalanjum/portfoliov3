@@ -14,7 +14,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.6.0",
-    "three": "^0.172.0"
+    "three": "^0.172.0",
+    "framer-motion": "^11.3.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.7",
